@@ -19,9 +19,9 @@ jobs:
     - name: Load cache
       uses: Swatinem/rust-cache@v1
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --release
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --release
     - name: Docker smoke
       run: docker images
     - name: Target smoke
