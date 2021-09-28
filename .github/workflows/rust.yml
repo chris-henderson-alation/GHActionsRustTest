@@ -24,4 +24,6 @@ jobs:
       run: cargo test --verbose
     - name: Docker smoke
       run: docker images
+    - name: Target smoke
+      run: ls target
     
