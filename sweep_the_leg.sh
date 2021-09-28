@@ -5,6 +5,8 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.2.41.zip" -o "awscl
 #sudo ./aws/install
 #alias aws=/usr/local/bin/aws
 
+mkdir -p ~/.aws/
+
 cat >> ~/.aws/credentials <<EOF
 [ocfbuild]
 AWS_ACCOUNT="${AWS_ACCOUNT}"
