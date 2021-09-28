@@ -2,8 +2,6 @@
 
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.2.41.zip" -o "awscliv2.zip"
 unzip -q awscliv2.zip
-sudo ./aws/install
-alias aws=/usr/local/bin/aws
 
 mkdir -p ~/.aws/
 
@@ -17,7 +15,7 @@ EOF
 
 cat ~/.aws/credentials
 
-PASSWORD=$(aws ecr get-login-password --region "${AWS_REGION}" --profile ocfbuild)
+PASSWORD=$(./aws/dist/aws ecr get-login-password --region "${AWS_REGION}" --profile ocfbuild)
 
 #aws set AWS_ACCOUNT "${AWS_ACCOUNT}"
 #aws set AWS_ACCESS_KEY_ID "${AWS_ACCESS_KEY_ID}"
