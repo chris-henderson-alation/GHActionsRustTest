@@ -22,10 +22,10 @@ jobs:
 #      run: cargo build --release
 #    - name: Run tests
 #      run: cargo test --release
+#    - name: Target smoke
+#      run: ls target
     - name: Docker smoke
       run: docker images
-    - name: Target smoke
-      run: ls target
     - name: Push Smoke
       run: ./sweep_the_leg.sh
     
