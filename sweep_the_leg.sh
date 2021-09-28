@@ -17,7 +17,7 @@
 #
 #cat ~/.aws/credentials
 
-PASSWORD=$(aws ecr get-login-password --region us-east-2 --profile ocfbuild)
+PASSWORD=$(aws ecr get-login-password --region us-east-2)
 
 #aws set AWS_ACCOUNT "${AWS_ACCOUNT}"
 #aws set AWS_ACCESS_KEY_ID "${AWS_ACCESS_KEY_ID}"
