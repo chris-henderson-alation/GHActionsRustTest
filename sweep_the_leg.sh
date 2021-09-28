@@ -7,7 +7,7 @@ sudo ./aws/install --update
 
 mkdir -p ~/.aws/
 
-cat >> ~/.aws/credentials <<EOF
+cat > ~/.aws/credentials <<EOF
 [ocfbuild]
 AWS_ACCOUNT="${AWS_ACCOUNT}"
 AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}"
