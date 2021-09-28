@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.2.41.zip" -o "awscliv2.zip"
-unzip -q awscliv2.zip
-sudo ./aws/install
-alias aws=/usr/local/bin/aws
+#curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.2.41.zip" -o "awscliv2.zip"
+#unzip -q awscliv2.zip
+#sudo ./aws/install
+#alias aws=/usr/local/bin/aws
 
 
-aws set AWS_ACCOUNT "${AWS_ACCOUNT}"
-aws set AWS_ACCESS_KEY_ID "${AWS_ACCESS_KEY_ID}"
-aws set AWS_SECRET_ACCESS_KEY "${AWS_SECRET_ACCESS_KEY}"
-aws set AWS_REGION "${AWS_REGION}"
+aws configure set AWS_ACCOUNT "${AWS_ACCOUNT}"
+aws configure set AWS_ACCESS_KEY_ID "${AWS_ACCESS_KEY_ID}"
+aws configure set AWS_SECRET_ACCESS_KEY "${AWS_SECRET_ACCESS_KEY}"
+aws configure set AWS_REGION "${AWS_REGION}"
 PASSWORD=$(aws ecr get-login-password)
 
 TAG=just-a-test
