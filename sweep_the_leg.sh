@@ -5,13 +5,6 @@ unzip -q awscliv2.zip
 sudo ./aws/install
 alias aws=/usr/local/bin/aws
 
-cat > ~/.aws/credentials <<EOF
-[ocfbuild]
-AWS_ACCOUNT="${AWS_ACCOUNT}"
-AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}"
-AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}"
-AWS_REGION="${AWS_REGION}"
-EOF
 
 aws set AWS_ACCOUNT "${AWS_ACCOUNT}"
 aws set AWS_ACCESS_KEY_ID "${AWS_ACCESS_KEY_ID}"
