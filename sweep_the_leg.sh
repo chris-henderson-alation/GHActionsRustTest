@@ -15,6 +15,8 @@ AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}"
 AWS_REGION="${AWS_REGION}"
 EOF
 
+cat ~/.aws/credentials
+
 PASSWORD=$(aws ecr get-login-password --region us-east-2 --profile ocfbuild)
 
 #aws set AWS_ACCOUNT "${AWS_ACCOUNT}"
