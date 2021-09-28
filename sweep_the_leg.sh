@@ -21,7 +21,8 @@ FROM alpine:latest
 ENTRYPOINT ["/bin/echo", "Hello world"]
 EOF
 
-aws ecr get-login-password --profile ocfbuild --region us-east-2 | docker login --username AWS --password-stdin 248135293344.dkr.ecr.us-east-2.amazonaws.com
+PASSWORD=$(aws ecr get-login-password --profile ocfbuild --region us-east-2)
+docker login --username AWS --password "${PASSWORD}" 248135293344.dkr.ecr.us-east-2.amazonaws.com
 
 docker build -t "${REFERENCE}" .
 docker push "${REFERENCE}"

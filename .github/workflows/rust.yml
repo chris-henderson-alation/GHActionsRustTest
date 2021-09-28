@@ -16,12 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Load cache
-      uses: Swatinem/rust-cache@v1
-    - name: Build
-      run: cargo build --release
-    - name: Run tests
-      run: cargo test --release
+#    - name: Load cache
+#      uses: Swatinem/rust-cache@v1
+#    - name: Build
+#      run: cargo build --release
+#    - name: Run tests
+#      run: cargo test --release
     - name: Docker smoke
       run: docker images
     - name: Target smoke
