@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.2.41.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
+unzip -q awscliv2.zip
 sudo ./aws/install
 alias aws=/usr/local/bin/aws
 
@@ -13,6 +13,12 @@ AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}"
 AWS_REGION="${AWS_REGION}"
 EOF
 
+aws set AWS_ACCOUNT "${AWS_ACCOUNT}"
+aws set AWS_ACCESS_KEY_ID "${AWS_ACCESS_KEY_ID}"
+aws set AWS_SECRET_ACCESS_KEY "${AWS_SECRET_ACCESS_KEY}"
+aws set AWS_REGION "${AWS_REGION}"
+PASSWORD=$(aws ecr get-login-password)
+
 TAG=just-a-test
 REFERENCE=248135293344.dkr.ecr.us-east-2.amazonaws.com/ocf-system/acm:"${TAG}"
 
@@ -21,7 +27,7 @@ FROM alpine:latest
 ENTRYPOINT ["/bin/echo", "Hello world"]
 EOF
 
-PASSWORD=$(aws ecr get-login-password --profile ocfbuild --region us-east-2)
+
 docker login --username AWS --password "${PASSWORD}" 248135293344.dkr.ecr.us-east-2.amazonaws.com
 
 docker build -t "${REFERENCE}" .
