@@ -17,7 +17,7 @@ k8s-openapi = { version = "0.13.0", features = ["v1_21"] }
 tokio = { version = "1.8.1", features = ["process"] }
 tokio-util = "0.6.7"
 serde_json = "1.0.64"
-serde = "1.0.126"
+serde = "1.0.130"
 rocket = { version = "0.5.0-rc.1" }
 uuid = "0.8.2"
 rand = "0.8.4"
