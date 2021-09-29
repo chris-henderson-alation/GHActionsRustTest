@@ -17,14 +17,14 @@ pub fn derive_error(input: TokenStream) -> TokenStream {
             match code {
                 Some(attribute) => {
                     let tt: Expr = attribute.parse_args().unwrap();
-                    return quote!(
+                    quote!(
                         impl HttpCode for #name {
                             fn http_code(&self) -> httpcode::Status {
                                 #tt
                             }
                         }
                     )
-                    .into();
+                    .into()
                 }
                 None => panic!("struct must have #[code(<CODE>)] attribute"),
             }
@@ -50,7 +50,7 @@ pub fn derive_error(input: TokenStream) -> TokenStream {
                     },
                 }
             });
-            return quote!(
+            quote!(
                 impl HttpCode for #name {
                     fn http_code(&self) -> httpcode::Status {
                         match self {
@@ -59,7 +59,7 @@ pub fn derive_error(input: TokenStream) -> TokenStream {
                     }
                 }
             )
-            .into();
+            .into()
         }
         Data::Union(..) => panic!("just say no to unions"),
     }
