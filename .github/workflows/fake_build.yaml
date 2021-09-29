@@ -24,6 +24,15 @@ jobs:
         with:
           name: datetime
           path: ./wat
+      - name: Docker pull
+        run: docker pull alpine
+
+  checking:
+    runs-on: ubuntu-latest
+    name: Fake Build
+    steps:
+      - name: docker ls
+        run: docker images
 
   release:
     needs: build
