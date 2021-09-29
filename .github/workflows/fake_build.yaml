@@ -25,7 +25,7 @@ jobs:
           name: datetime
           path: ./wat
       - name: Docker pull
-        run: docker pull alpine
+        run: docker pull centos
 
   checking:
     runs-on: ubuntu-latest
