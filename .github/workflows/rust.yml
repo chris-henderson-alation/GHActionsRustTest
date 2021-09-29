@@ -16,14 +16,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-#    - name: Load cache
-#      uses: Swatinem/rust-cache@v1
-#    - name: Build
-#      run: cargo build --release
-#    - name: Run tests
-#      run: cargo test --release
-#    - name: Target smoke
-#      run: ls target
+    - name: Load cache
+      uses: Swatinem/rust-cache@v1
+    - name: Build
+      run: cargo build --release
+    - name: Run tests
+      run: cargo test --release
+    - name: Target smoke
+      run: ls target
     - name: Docker smoke
       run: docker images
     - name: Configure AWS Credentials
@@ -32,6 +32,6 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION  }}
-    - name: Push Smoke
-      run: ./sweep_the_leg.sh
+#    - name: Push Smoke
+#      run: ./sweep_the_leg.sh
     
