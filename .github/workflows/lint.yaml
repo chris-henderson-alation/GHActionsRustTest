@@ -13,25 +13,25 @@ env:
 
 jobs:
   lints:
-    name: Run cargo fmt and cargo clippy
+    name: Code Quality and Formatting Linters
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Load cache
         uses: Swatinem/rust-cache@v1
-      - name: Install toolchain
+      - name: Install Toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
           components: rustfmt, clippy
-      - name: Run cargo fmt
+      - name: Run "cargo fmt --all -- --check"
         uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
-      - name: Run cargo clippy
+      - name: Run "cargo clippy -- -D warnings"
         uses: actions-rs/cargo@v1
         with:
           command: clippy
