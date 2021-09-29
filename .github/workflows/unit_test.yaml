@@ -6,13 +6,11 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  unit_tests:
-
+  unit_test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-      - name: Load cache
+      - name: Load Cache
         uses: Swatinem/rust-cache@v1
-      - name: Run tests
+      - name: Run Tests
         run: cargo test --release

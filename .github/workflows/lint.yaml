@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Load cache
+      - name: Load Cache
         uses: Swatinem/rust-cache@v1
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
@@ -20,12 +20,12 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt, clippy
-      - name: Run cargo fmt
+      - name: Check Code Formatting
         uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
-      - name: Run cargo clippy
+      - name: Check Code Quality
         uses: actions-rs/cargo@v1
         with:
           command: clippy

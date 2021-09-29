@@ -11,12 +11,10 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-    - name: Load Build Cache
+    - name: Load Cache
       uses: Swatinem/rust-cache@v1
     - name: Build
       run: cargo build --release
