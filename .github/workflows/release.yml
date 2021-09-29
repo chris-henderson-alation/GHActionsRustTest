@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Push to ECR
     steps:
-    - working-directory: k8s
     - uses: actions/checkout@v2
     - name: Load Cache
       uses: Swatinem/rust-cache@v1
