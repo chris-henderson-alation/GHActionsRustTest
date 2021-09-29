@@ -1,0 +1,22 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Fake Build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Make file
+        run: date > wat
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: datetime
+          path: ./wat

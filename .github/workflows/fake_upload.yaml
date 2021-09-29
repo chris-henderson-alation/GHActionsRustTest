@@ -1,0 +1,23 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Fake Upload
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: datetime
+      - name: Checkit
+        run: ls
+
+
