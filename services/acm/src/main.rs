@@ -24,4 +24,9 @@ mod tests {
     fn it_really_super_works_well() {
         assert_eq!(4, 2 + 2)
     }
+
+    #[test]
+    fn it_really_super_duper_works_well() {
+        assert_eq!(4, 2 + 2)
+    }
 }
