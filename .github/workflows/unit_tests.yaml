@@ -1,0 +1,28 @@
+name: Unit Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - "*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  unit_tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Load Cache
+        uses: Swatinem/rust-cache@v1
+        with:
+          working-directory: ./k8s
+      - uses: actions-rs/cargo@v1
+        name: Run Unit Tests
+        with:
+          command: test
+          args: --release --manifest-path ./k8s/Cargo.toml

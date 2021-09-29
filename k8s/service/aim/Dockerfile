@@ -1,0 +1,5 @@
+FROM amazon/aws-cli:2.2.34
+COPY aim /opt/aim
+COPY containerd/etc/containerd /etc/
+COPY containerd/bin/ctr /usr/local/bin/ctr
+ENTRYPOINT ["/opt/aim"]

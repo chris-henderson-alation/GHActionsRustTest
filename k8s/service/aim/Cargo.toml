@@ -1,0 +1,32 @@
+[package]
+name = "aim"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "0.11.4", default-features = false, features = ["rustls-tls", "json"]}
+futures = "0.3.16"
+futures-util = "0.3.16"
+tokio = { version = "1.8.1", features = ["process"] }
+tokio-util = "0.6.7"
+serde_json = "1.0.64"
+serde = "1.0.126"
+rocket = { version = "0.5.0-rc.1" }
+env_logger = "0.9.0"
+log = "0.4.14"
+backoff = { version = "0.3.0", features = ["futures", "tokio"] }
+lazy_static = "1.4.0"
+sha2 = "0.9.6"
+
+
+names = { path = "../../library/names"}
+kind = { path = "../../library/kind"}
+httpcode = { path = "../../library/httpcode" }
+error = { path = "../../library/error" }
+result = { path = "../../library/result" }
+response = { path = "../../library/response" }
+#k8s = { path = "../../library/k8s" }
+term_colors = { path = "../../library/term_colors" }
+os = { path = "../../library/os" }

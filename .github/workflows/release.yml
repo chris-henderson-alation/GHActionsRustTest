@@ -12,11 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     name: Push to ECR
     steps:
+    - working-directory: k8s
     - uses: actions/checkout@v2
     - name: Load Cache
       uses: Swatinem/rust-cache@v1
-    - name: Build
-      run: cargo build --release
+      with:
+        working-directory: ./k8s
+#    - name: Build
+#      run: cargo build --release
+    - uses: actions-rs/cargo@v1
+      name: Build
+      with:
+        command: build
+        args: --release --manifest-path ./k8s/Cargo.toml
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:

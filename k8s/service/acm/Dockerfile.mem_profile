@@ -1,0 +1,6 @@
+# Mem profiling build.
+FROM debian:latest
+RUN apt update && apt install -y heaptrack
+COPY acm /opt/acm
+ENV RUST_BACKTRACE=1
+ENTRYPOINT ["/usr/bin/heaptrack", "-o", "/data/acm.heaptrack", "/opt/acm"]

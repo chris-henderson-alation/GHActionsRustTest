@@ -1,0 +1,6 @@
+[workspace]
+members = ["service/*", "library/*"]
+
+## Memory profiling ONLY.
+#[profile.release]
+#debug = 1

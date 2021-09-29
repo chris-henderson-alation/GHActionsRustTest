@@ -1,0 +1,40 @@
+name: Lints
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - "*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lints:
+    name: Code Quality and Formatting Linters
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Load cache
+        uses: Swatinem/rust-cache@v1
+        with:
+          working-directory: ./k8s
+      - name: Install Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+#      - name: Run "cargo fmt --all -- --check"
+#        uses: actions-rs/cargo@v1
+#        with:
+#          command: fmt
+#          args: --all -- --check
+      - name: Run "cargo clippy -- -D warnings"
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --manifest-path ./k8s/Cargo.toml -- -D warnings
