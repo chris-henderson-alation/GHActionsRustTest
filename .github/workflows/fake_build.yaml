@@ -1,4 +1,4 @@
-name: Release
+name: Build
 
 on:
   push:
@@ -12,27 +12,34 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  compile:
     runs-on: ubuntu-latest
-    name: Fake Build
+    name: Compile
     steps:
       - uses: actions/checkout@v2
-      - name: Make file
-        run: date > wat
-      - name: Archive code coverage results
-        uses: actions/upload-artifact@v2
+      - name: Load Cache
+        uses: Swatinem/rust-cache@v1
         with:
-          name: datetime
-          path: ./wat
-      - name: Docker pull
-        run: docker pull centos
+          working-directory: ./k8s
+      - uses: actions-rs/cargo@v1
+        name: Build
+        with:
+          command: build
+          args: --release --workspace --manifest-path ./k8s/Cargo.toml
 
-  checking:
+  docker:
     runs-on: ubuntu-latest
-    name: Fake Build
+    name: Docker Build
     steps:
       - name: docker ls
         run: docker images
+
+  helm:
+    runs-on: ubuntu-latest
+    name: Helm Package
+    steps:
+      - name: Helm Package
+        run: helm
 
   release:
     needs: build

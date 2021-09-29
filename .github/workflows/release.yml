@@ -17,8 +17,6 @@ jobs:
       uses: Swatinem/rust-cache@v1
       with:
         working-directory: ./k8s
-#    - name: Build
-#      run: cargo build --release
     - uses: actions-rs/cargo@v1
       name: Build
       with:
