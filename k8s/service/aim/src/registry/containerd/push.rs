@@ -14,7 +14,7 @@ pub struct Push<'a> {
 impl<'a> Push<'a> {
     pub async fn push(self) -> Result<Image> {
         match Implementation::which() {
-            Implementation::ECR => self.push_to_ecr().await?,
+            Implementation::Ecr => self.push_to_ecr().await?,
             Implementation::Minikube => self.push_to_minikube().await?,
         };
         Ok(self.image.into())

@@ -146,10 +146,12 @@ async fn main() {
     std::env::set_var("RUST_LOG_STYLE", "always");
     env_logger::init();
     registry::Implementation::configure();
-    let mut c = rocket::Config::default();
-    c.address = "0.0.0.0".parse().expect("it to parse");
-    c.limits = Limits::default().limit("file", MAX_UPLOAD_SIZE);
-    rocket::custom(c)
+    let config = rocket::Config {
+        address: "0.0.0.0".parse().expect("it to parse"),
+        limits: Limits::default().limit("file", MAX_UPLOAD_SIZE),
+        ..Default::default()
+    };
+    rocket::custom(config)
         .mount("/", routes![install, uninstall, list, get])
         .launch()
         .await

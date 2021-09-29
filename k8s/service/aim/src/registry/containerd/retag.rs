@@ -1,3 +1,4 @@
+use crate::registry::containerd::namespace::Namespace;
 use crate::registry::containerd::push::Push;
 use crate::registry::containerd::tmp_image::TmpImage;
 use crate::{ctr, env};
@@ -41,7 +42,7 @@ impl<'a> Retag<'a> {
                 reference: new_reference,
                 tag: new_tag,
                 digest: self.image.digest.clone(),
-                namespace: self.image.namespace.clone(),
+                namespace: <&Namespace>::clone(&self.image.namespace),
             },
         })
     }

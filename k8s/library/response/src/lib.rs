@@ -71,7 +71,8 @@ impl<'r, 'o: 'r, T: Serialize + Kind> Responder<'r, 'o> for Response<T> {
         });
         // @TODO it MIGHT be possible to fail here? No idea how. If so, can read the error here
         // and return that instead. I just have no idea what could ever cause it.
-        let json = to_string_pretty(&json).expect(&format!("failed to pretty print {}", json));
+        let json =
+            to_string_pretty(&json).unwrap_or_else(|_| panic!("failed to pretty print {}", json));
         response.sized_body(json.len(), std::io::Cursor::new(json));
         Ok(response.finalize())
     }

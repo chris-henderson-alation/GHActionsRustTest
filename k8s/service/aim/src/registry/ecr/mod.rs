@@ -4,9 +4,7 @@ use crate::registry::Image;
 use error::*;
 use os::cmd;
 use result::Result;
-use serde;
 use serde::Deserialize;
-use serde_json;
 use std::fmt::{Display, Formatter};
 
 /// `aws` is a convenience macro for executing the [AWS CLI v2 Tooling](https://aws.amazon.com/cli/).
@@ -76,7 +74,7 @@ pub async fn uninstall(tag: String) -> Result<()> {
             error: format!("{}", error).into(),
         })?,
     )
-    .map_err(|err| EcrUninstallSerdeError::from(err))?;
+    .map_err(EcrUninstallSerdeError::from)?;
     match result.failures.as_slice() {
         [failure, ..] => match failure.failure_code.as_str() {
             // If there is no such image to delete then we consider that okay
@@ -142,11 +140,11 @@ impl Display for EcrImage {
 }
 
 /// Converts ECR's representation of a `(tag, digest)` pairing into our own representation.
-impl Into<Image> for EcrImage {
-    fn into(self) -> Image {
+impl From<EcrImage> for Image {
+    fn from(image: EcrImage) -> Self {
         Image {
-            tag: self.image_tag,
-            digest: self.image_digest,
+            tag: image.image_tag,
+            digest: image.image_digest,
         }
     }
 }
@@ -171,7 +169,7 @@ pub async fn list() -> Result<Vec<Image>> {
         )
         .await?,
     )
-    .map_err(|err| EcrImageSerdeError::from(err))?;
+    .map_err(EcrImageSerdeError::from)?;
     Ok(images.image_ids.into_iter().map(EcrImage::into).collect())
 }
 

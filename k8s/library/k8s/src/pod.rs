@@ -186,13 +186,13 @@ impl PodExt for Pod {
                 // Either we have begun execution and can being logging
                 // or the darned thing instagibbed itself so we should
                 // go pick up its logs.
-                match state.waiting.as_ref() {
+                matches!(
+                    &state.waiting,
                     Some(ContainerStateWaiting {
                         reason: Some(reason),
                         ..
-                    }) if reason.eq("ErrImagePull") => true,
-                    _ => false,
-                }
+                    }) if reason.eq("ErrImagePull")
+                )
             });
         status.is_some()
     }
@@ -214,13 +214,13 @@ impl PodExt for Pod {
                 // Either we have begun execution and can being logging
                 // or the darned thing instagibbed itself so we should
                 // go pick up its logs.
-                match state.waiting.as_ref() {
+                matches!(
+                    &state.waiting,
                     Some(ContainerStateWaiting {
                         reason: Some(reason),
                         ..
-                    }) if reason.eq("ErrImagePull") => true,
-                    _ => false,
-                }
+                    }) if reason.eq("ErrImagePull")
+                )
             });
         if let Some(problem) = status {
             Err(ErrImagePull {
@@ -263,13 +263,13 @@ impl PodExt for Pod {
                 // Either we have begun execution and can being logging
                 // or the darned thing instagibbed itself so we should
                 // go pick up its logs.
-                match state.waiting.as_ref() {
+                matches!(
+                    &state.waiting,
                     Some(ContainerStateWaiting {
                         reason: Some(reason),
                         ..
-                    }) if reason.eq("CrashLoopBackOff") => true,
-                    _ => false,
-                }
+                    }) if reason.eq("CrashLoopBackOff")
+                )
             });
         status.is_some()
     }

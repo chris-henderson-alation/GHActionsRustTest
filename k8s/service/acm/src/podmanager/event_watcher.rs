@@ -27,7 +27,7 @@ impl EventWatcher {
     ///         of this channel MUST be given to garbage collector that pairs with this EventWatcher.
     ///     3. A PodManagerLowerHandle. This serves as the communication and synchronization
     ///         channel to external clients that may access results via the paired PodManagerUpperHandle.
-    pub fn new<P: AsRef<str>>(
+    pub fn new_watcher<P: AsRef<str>>(
         pod_id: P,
         status: tokio::sync::mpsc::Sender<GcStatus>,
         lower: PodManagerLowerHandle,
@@ -139,7 +139,7 @@ impl EventWatcherDaemon {
                 pod = p;
                 match self
                     .gc_status_signal
-                    .send(GcStatus::Running(pod.clone()))
+                    .send(GcStatus::Running(Box::new(pod.clone())))
                     .await
                 {
                     Ok(_) => trace!(
@@ -171,10 +171,10 @@ impl EventWatcherDaemon {
             } else if p.terminated() || p.crashed() {
                 let message = pod
                     .terminated_message()
-                    .unwrap_or("<None Given>".to_string());
+                    .unwrap_or_else(|| "<None Given>".to_string());
                 let reason = pod
                     .terminated_reason()
-                    .unwrap_or("<None Given>".to_string());
+                    .unwrap_or_else(|| "<None Given>".to_string());
                 info!(
                     "Pod {} entered the {} phase in {}",
                     cyan(&self.pod_id),
@@ -426,7 +426,7 @@ impl EventWatcherDaemon {
 /// A GcStatus us a simple binary status that may be sent to
 /// the garbage collector to communicate start/shutdown signals.
 pub enum GcStatus {
-    Running(Pod),
+    Running(Box<Pod>),
     Terminated,
 }
 

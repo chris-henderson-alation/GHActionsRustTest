@@ -18,11 +18,9 @@ pub use kind_derive::*;
 ///     VariantTwo(u32)
 /// }
 ///
-/// fn main() {
-///     assert_eq!("MyKind", MyKind{}.kind());
-///     assert_eq!("MyEnum::VariantOne", MyEnum::VariantOne.kind());
-///     assert_eq!("MyEnum::VariantTwo", MyEnum::VariantTwo(42).kind());
-/// }
+/// assert_eq!("MyKind", MyKind{}.kind());
+/// assert_eq!("MyEnum::VariantOne", MyEnum::VariantOne.kind());
+/// assert_eq!("MyEnum::VariantTwo", MyEnum::VariantTwo(42).kind());
 /// ```
 ///
 /// The Kind derivation macro does not work on Unions. If you wish, you must implement Kind
@@ -72,7 +70,7 @@ where
     T: Kind,
 {
     fn kind(&self) -> String {
-        if self.len() == 0 {
+        if self.is_empty() {
             "List[]".to_string()
         } else {
             format!("List[{}]", self.get(0).unwrap().kind())

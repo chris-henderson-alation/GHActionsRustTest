@@ -66,7 +66,7 @@ pub async fn exec<S: AsRef<[u8]>>(
 ) -> Result<String> {
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
-    cmd.stdin(if let Some(_) = stdin {
+    cmd.stdin(if stdin.is_some() {
         Stdio::piped()
     } else {
         Stdio::null()

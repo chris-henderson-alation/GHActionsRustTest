@@ -8,7 +8,7 @@ pub struct WorkFlow {}
 /// that the namespace will exist for the complete duration of the installation procedure
 /// while also guaranteeing that the namespace is ultimately cleaned up in all exit scenarios.
 impl WorkFlow {
-    pub fn new(namespace: &Namespace) -> Import {
+    pub fn new_workflow(namespace: &Namespace) -> Import {
         Import { namespace }
     }
 }

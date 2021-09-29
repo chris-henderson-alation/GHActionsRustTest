@@ -45,7 +45,7 @@ async fn servicer() -> Result<Pod> {
                 .trim(),
         )
         .await
-        .map_err(|err| ApiError::from(err))?)
+        .map_err(ApiError::from)?)
 }
 
 /// Deploys the given image reference to Kubernetes as a pod within the `ocf` namespace.

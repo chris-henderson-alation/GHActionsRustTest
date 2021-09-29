@@ -63,7 +63,7 @@ impl PodManager {
     /// that will be spun up to back this new PodManager. If no specific TTL is desired, then
     /// one may use the [DEFAULT_TTL](garbage_collector::DEFAULT_TTL) defined in the garbage
     /// collector module.
-    pub async fn new<T: AsRef<str>>(id: T, ttl: u64) {
+    pub async fn new_podmanager<T: AsRef<str>>(id: T, ttl: u64) {
         // @TODO the object graph here could use some cleanup. The design pattern is
         // ALMOST consistent across the whole multiple components that comprise a Podmanager,
         // but not quite.
@@ -80,7 +80,7 @@ impl PodManager {
         // GarbageCollector gets the receiving end.
         let (ew_to_gc_send, ew_to_gc_recv) = tokio::sync::mpsc::channel(100);
         // Lets get our EventWatcher. This is a coroutine that needs to be eventually joined.
-        let watcher_handle = EventWatcher::new(pod.clone(), ew_to_gc_send, pm_to_ew_recv);
+        let watcher_handle = EventWatcher::new_watcher(pod.clone(), ew_to_gc_send, pm_to_ew_recv);
         // Lets get our GarbageCollector. The "gc" is a facade into the actual garbage collector
         // while the "gc_handle" is a coroutine that needs to be eventually joined.
         let (gc, gc_handle) = GarbageCollector::new(ew_to_gc_recv, pod.clone(), ttl);

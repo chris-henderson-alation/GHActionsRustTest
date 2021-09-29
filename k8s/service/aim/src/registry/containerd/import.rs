@@ -90,25 +90,37 @@ impl<'a> Import<'a> {
         let images_ls_vec = images_ls.as_ref().split('\n').collect::<Vec<&str>>();
         let image: &str = match images_ls_vec[..] {
             [_, data] => data,
-            [header] => Err(CtrImageLs::NoData {
-                namespace: namespace.as_ref().to_string(),
-                header: header.to_string(),
-            })?,
-            _ => Err(UnexpectedContainerdImageLsFormat {
-                output: images_ls.as_ref().to_string(),
-            })?,
+            [header] => {
+                return Err(CtrImageLs::NoData {
+                    namespace: namespace.as_ref().to_string(),
+                    header: header.to_string(),
+                }
+                .into())
+            }
+            _ => {
+                return Err(UnexpectedContainerdImageLsFormat {
+                    output: images_ls.as_ref().to_string(),
+                }
+                .into())
+            }
         };
-        let (reference, digest) = match image.split(" ").collect::<Vec<&str>>()[..] {
+        let (reference, digest) = match image.split(' ').collect::<Vec<&str>>()[..] {
             [reference, _, digest, ..] => (reference.to_string(), digest.to_string()),
-            [..] => Err(UnexpectedContainerdImageRow {
-                output: images_ls.as_ref().to_string(),
-            })?,
+            [..] => {
+                return Err(UnexpectedContainerdImageRow {
+                    output: images_ls.as_ref().to_string(),
+                }
+                .into())
+            }
         };
         let tag = match reference.rsplit_once(":") {
             Some((_, tag)) => tag.to_string(),
-            None => Err(UnexpectedImageReferenceFormat {
-                output: reference.clone(),
-            })?,
+            None => {
+                return Err(UnexpectedImageReferenceFormat {
+                    output: reference.clone(),
+                }
+                .into())
+            }
         };
         Ok(((reference as Reference), (tag as Tag), (digest as Digest)))
     }

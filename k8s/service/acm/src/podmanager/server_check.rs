@@ -88,8 +88,10 @@ impl ServerCheck {
     /// point the pod will be considered ill-behaved.
     async fn check(endpoint: Endpoint, sigint: Receiver<()>, output: Sender<Result<()>>) {
         let mut latest_error = None;
-        let mut b = backoff::ExponentialBackoff::default();
-        b.max_elapsed_time = Some(std::time::Duration::from_secs(MAXIMUM_POLLING_TIME));
+        let mut b = backoff::ExponentialBackoff {
+            max_elapsed_time: Some(std::time::Duration::from_secs(MAXIMUM_POLLING_TIME)),
+            ..Default::default()
+        };
         let sigint = sigint.fuse();
         pin_mut!(sigint);
         loop {
@@ -133,7 +135,7 @@ impl ServerCheck {
                     let connection = HealthClient::connect(endpoint.clone()).fuse();
                     let patience = tokio::time::Duration::from_secs(MAXIMUM_POLLING_TIME)
                         .checked_sub(b.get_elapsed_time())
-                        .unwrap_or(tokio::time::Duration::from_secs(0));
+                        .unwrap_or_else(|| tokio::time::Duration::from_secs(0));
                     let patience = tokio::time::sleep(patience).fuse();
                     pin_mut!(connection, patience);
                     // Either we have

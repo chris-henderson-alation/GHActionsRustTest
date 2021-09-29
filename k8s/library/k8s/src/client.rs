@@ -76,7 +76,7 @@ impl Logs<Pod> for Api<Pod> {
             timestamps: false,
         };
         let stream = self
-            .log_stream(resource.name().as_str(), &lp)
+            .log_stream(resource.name().as_str(), lp)
             .await
             .unwrap()
             .map(|err| match err {
@@ -96,8 +96,8 @@ struct StreamError {
     cause: kube::Error,
 }
 
-impl Into<std::io::Error> for StreamError {
-    fn into(self) -> std::io::Error {
-        std::io::Error::new(std::io::ErrorKind::BrokenPipe, self)
+impl From<StreamError> for std::io::Error {
+    fn from(error: StreamError) -> Self {
+        std::io::Error::new(std::io::ErrorKind::BrokenPipe, error)
     }
 }

@@ -58,12 +58,12 @@ impl From<TmpImage<'_>> for Image {
 /// 3. Push the newly tagged image into the remote registry.
 pub async fn import(image: TempFile<'_>) -> Result<Image> {
     let namespace = Namespace::new();
-    let image = WorkFlow::new(&namespace)
+    let image = WorkFlow::new_workflow(&namespace)
         .import(image)
         .await?
         .retag()
         .await?
         .push()
         .await?;
-    Ok(image.into())
+    Ok(image)
 }

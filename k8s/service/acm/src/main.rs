@@ -59,12 +59,12 @@ extern crate lazy_static;
 /// ```
 #[post("/deploy?<tag>&<name>&<ttl>")]
 pub async fn deploy(tag: String, name: String, ttl: Option<u64>) -> Result<Response<Pod>> {
-    let registry = std::env::var("REGISTRY").unwrap_or("registry.kurl".to_string());
-    let repository = std::env::var("REPOSITORY").unwrap_or("ocf".to_string());
+    let registry = std::env::var("REGISTRY").unwrap_or_else(|_| "registry.kurl".to_string());
+    let repository = std::env::var("REPOSITORY").unwrap_or_else(|_| "ocf".to_string());
     let reference = format!("{}/{}:{}", registry, repository, tag);
     let ttl = ttl.unwrap_or(garbage_collector::DEFAULT_TTL);
     let pod = k8s::deploy(reference, name, ttl).await?;
-    podmanager::PodManager::new(pod.name(), ttl).await;
+    podmanager::PodManager::new_podmanager(pod.name(), ttl).await;
     Ok(pod.into())
 }
 
@@ -164,12 +164,14 @@ async fn main() {
     // Sets the logger to use terminal colors.
     std::env::set_var("RUST_LOG_STYLE", "always");
     env_logger::init();
-    let mut c = rocket::Config::default();
-    // If you leave it to the default then it will choose
-    // 127.0.0.1 which will not be reachable whe running
-    // in a container. So please leave this to 0.0.0.0.
-    c.address = "0.0.0.0".parse().unwrap();
-    rocket::custom(c)
+    let config = rocket::Config {
+        // If you leave it to the default then it will choose
+        // 127.0.0.1 which will not be reachable whe running
+        // in a container. So please leave this to 0.0.0.0.
+        address: "0.0.0.0".parse().unwrap(),
+        ..Default::default()
+    };
+    rocket::custom(config)
         .mount("/", routes![deploy, wait, delete, refresh])
         .launch()
         .await

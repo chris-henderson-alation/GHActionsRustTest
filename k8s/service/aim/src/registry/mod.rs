@@ -15,7 +15,7 @@ static INIT: Once = Once::new();
 pub enum Implementation {
     /// ECR stands of the Elastic Container Registry and is a product of AWS. This is a valid
     /// production target implementation.
-    ECR,
+    Ecr,
     /// Minikube is a small, easy to use, Kubernetes packaging that is primarily used for
     /// local development. Minikube is NOT a valid production implementation! Minikube
     /// MUST be used for development and testing purposes ONLY.
@@ -32,7 +32,7 @@ impl Implementation {
     pub fn which() -> Implementation {
         let implementation = env::implementation();
         match implementation.to_lowercase().as_str() {
-            "ecr" => Implementation::ECR,
+            "ecr" => Implementation::Ecr,
             "minikube" => Implementation::Minikube,
             _ => panic!(
                 "the IMPLEMENTATION environment variable was set to {}. \
@@ -63,7 +63,7 @@ impl Implementation {
                     Implementation::Minikube => {
                         warn!("This runtime is configured for use with Minikube. This should be for dev {}!", term_colors::red("ONLY"));
                     }
-                    Implementation::ECR => {
+                    Implementation::Ecr => {
                         info!("Configuring this runtime for the {} (AWS ECR).", term_colors::bold("Elastic Container Registry"));
                         let key_id = env::aws_access_key_id();
                         let access_key = env::aws_secret_access_key();
@@ -91,7 +91,7 @@ impl Implementation {
 /// being pushed to that target repository.
 pub async fn import(image: TempFile<'_>) -> Result<Image> {
     Implementation::configure();
-    Ok(containerd::import(image).await?.into())
+    containerd::import(image).await
 }
 
 /// Uninstalls the given tag from the configured repository. If no such
@@ -99,7 +99,7 @@ pub async fn import(image: TempFile<'_>) -> Result<Image> {
 pub async fn uninstall(tag: String) -> Result<()> {
     Implementation::configure();
     match Implementation::which() {
-        Implementation::ECR => ecr::uninstall(tag).await,
+        Implementation::Ecr => ecr::uninstall(tag).await,
         Implementation::Minikube => minikube::uninstall(tag).await,
     }
 }
@@ -109,7 +109,7 @@ pub async fn uninstall(tag: String) -> Result<()> {
 pub async fn list() -> Result<Vec<Image>> {
     Implementation::configure();
     match Implementation::which() {
-        Implementation::ECR => ecr::list().await,
+        Implementation::Ecr => ecr::list().await,
         Implementation::Minikube => minikube::list().await,
     }
 }
@@ -122,7 +122,7 @@ pub async fn list() -> Result<Vec<Image>> {
 pub async fn get(tag: String) -> Result<Image> {
     Implementation::configure();
     let image = match Implementation::which() {
-        Implementation::ECR => ecr::get(&tag).await,
+        Implementation::Ecr => ecr::get(&tag).await,
         Implementation::Minikube => minikube::get(&tag).await,
     }?;
     // Map a None result into an error for upstream clients.
