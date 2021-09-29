@@ -74,7 +74,7 @@ pub fn rfc1123_subdomain<T: AsRef<str>>(prefix: T) -> String {
         prefix = DEFAULT_IF_INVALID_SUBDOMAIN.to_string();
     }
     // +1/9 because of the hyphen that separates {prefix}-{uuid}
-    if uuid.len() + prefix.len() + 1 <= 63 {
+    if uuid.len() + prefix.len() < 63 {
         // Case 3.a
     } else if prefix.len() + 9 > 63 {
         // Case 3.b

@@ -23,7 +23,7 @@ jobs:
       name: Build
       with:
         command: build
-        args: --release --manifest-path ./k8s/Cargo.toml
+        args: --release --workspace --manifest-path ./k8s/Cargo.toml
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
