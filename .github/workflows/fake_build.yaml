@@ -56,7 +56,7 @@ jobs:
           path: k8s/target/release/aim
       - name: Package
         working-directory: k8s
-        run: package.sh
+        run: k8s/package.sh
         env:
           REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
       - name: Archive the ACM
@@ -84,6 +84,7 @@ jobs:
 
   release:
     needs: docker
+    name: Release to ECR
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
