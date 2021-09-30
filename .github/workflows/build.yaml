@@ -50,7 +50,7 @@ jobs:
         with:
           name: acm
           path: k8s/target/release
-      - name: Download the Archived ACM
+      - name: Download the Archived AIM
         uses: actions/download-artifact@v2
         with:
           name: aim
@@ -81,20 +81,38 @@ jobs:
     name: Package Helm Charts
     steps:
       - name: Helm Package
-        run: helm
+        working-directory: k8s
+        run: |
+          source version.env
+          helm package --version "${VERSION}" --app-version "${VERSION}" ./helm
 
   release:
-    needs: docker
+    needs: [docker, helm]
     name: Release to ECR
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
-      - name: Download a single artifact
+
+      - name: Download the Archived ACM
         uses: actions/download-artifact@v2
         with:
-          name: datetime
-      - name: Checkit
-        run: ls
-      - name: Checkit 2
-        run: cat wat
+          name: acm
+      - name: Download the Archived AIM
+        uses: actions/download-artifact@v2
+        with:
+          name: aim
+      - name: Download the Archived containerd
+        uses: actions/download-artifact@v2
+        with:
+          name: aim
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION  }}
+      - name: Log Into ECR
+        run: aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin "${REGISTRY}"
+        env:
+          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
