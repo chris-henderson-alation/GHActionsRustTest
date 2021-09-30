@@ -128,14 +128,17 @@ jobs:
           docker load -i aim
           docker load -i containerd
       - name: Push ACM to ECR
+        working-directory: ./k8s
         run: |
           source version.env
           docker push "${REGISTRY}"/ocf-system/acm:"${VERSION}"
       - name: Push AIM to ECR
+        working-directory: ./k8s
         run: |
           source version.env
           docker push "${REGISTRY}"/ocf-system/aim:"${VERSION}"
       - name: Push containerd to ECR
+        working-directory: ./k8s
         run: |
           source version.env
           docker push "${REGISTRY}"/ocf-system/containerd:"${VERSION}"
