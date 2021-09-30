@@ -49,12 +49,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: acm
-          path: k8s/target/release/acm
+          path: k8s/target/release
       - name: Download the Archived ACM
         uses: actions/download-artifact@v2
         with:
           name: aim
-          path: k8s/target/release/aim
+          path: k8s/target/release
       - name: Package
         working-directory: k8s
         run: ./package.sh
