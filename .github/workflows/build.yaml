@@ -81,7 +81,6 @@ jobs:
     name: Package Helm Charts
     steps:
       - name: Wat
-        working-directory: ./k8s
         run: ls
       - name: Helm Package
         working-directory: ./k8s
