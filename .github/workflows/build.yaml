@@ -80,13 +80,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Package Helm Charts
     steps:
-      - name: Wat
-        run: ls
-      - name: Helm Package
+      - uses: actions/checkout@v2
+      - name: Package Helm Charts
         working-directory: ./k8s
         run: |
           source version.env
           helm package --version "${VERSION}" --app-version "${VERSION}" ./helm
+          mv acm-"${VERSION}.tgz acm.tgz
+      - name: Archive Helm Charts
+        uses: actions/upload-artifact@v2
+        with:
+          name: acm_helm_charts
+          path: k8s/acm.tgz
 
   release:
     needs: [docker, helm]
