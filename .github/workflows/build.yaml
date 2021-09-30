@@ -107,7 +107,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION  }}
       - name: Log Into ECR
-        run: aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin "${REGISTRY}"
+        run: |
+          PASSWORD="$(aws ecr get-login-password --region us-east-2)"
+          echo "${PASSWORD}" | docker login --username AWS --password-stdin "${REGISTRY}"
+          echo "${PASSWORD}" | HELM_EXPERIMENTAL_OCI=1 helm registry login --username AWS --password-stdin "${REGISTRY}"
         env:
           REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
       - name: Download the Archived ACM
@@ -147,4 +150,16 @@ jobs:
           REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
         run: |
           source version.env
+          docker push "${REGISTRY}"/ocf-system/containerd:"${VERSION}"
+
+      - name: Download the Archived Helm Charts
+        uses: actions/download-artifact@v2
+        with:
+          name: acm_helm_charts
+      - name: Push Helm Charts to ECR
+        env:
+          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
+        run: |
+          source k8s/version.env
+          HELM_EXPERIMENTAL_OCI=1 helm push acm.tgz oci://"${REGISTRY}"/helm
           docker push "${REGISTRY}"/ocf-system/containerd:"${VERSION}"
