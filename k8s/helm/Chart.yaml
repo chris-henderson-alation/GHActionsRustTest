@@ -1,0 +1,9 @@
+apiVersion: v2
+description: The Alation Connector Manager (ACM)
+name: acm
+# Do not use this as the actual version. Set the
+# version in version.env and pass that value into
+# helm using --version
+appVersion: 1.0.0
+type: application
+version: 1.0.0

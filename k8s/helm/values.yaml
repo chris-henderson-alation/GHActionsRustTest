@@ -1,0 +1,96 @@
+# OCF is unique in our tech stack in that it dynamically works
+# with our image registry as well as the Kubernetes API. Credentials
+# and metadata regarding Kubernetes automatically mounted into our
+# service pods by Kubernetes itself, however WE must be the ones to
+# mount in information regarding the registry.
+#
+# The majority if this Helm chart is concerned simply with the following questions
+#
+#   1. Where is the registry and what implementation is it?
+#   2. What is the name of the customer specific repository that we will be using to manage OCF connector images?
+#   3. What credentials, if any, will I need to accomplish programmatic control of the repository configured in #2?
+#
+# The rest are logging and local development settings.
+
+# Registry information that is used to dynamically control where to
+# install, uninstall, and pull images from at runtime.
+registry:
+  # The implementation of the OCI compliant registry that this installation is targetting.
+  #
+  # Valid registry implementations are
+  #
+  #   1. ECR
+  #   2. Minikube (dev/test ONLY!)
+  #
+  # Any other provided value will immediately exit the AIM with a relevant error message.
+  implementation: ECR
+  # Our target registry. This MUST be a valid DNS entry.
+  #
+  # In ECR, this might look something like "248135293344.dkr.ecr.us-east-2.amazonaws.com".
+  # In Minikube, it is likely "registry.kube-system".
+  registry: ~
+  # This is the repository that is programmatically controlled by the AIM. Images WILL
+  # be installed to and deleted from this repository via actions taken from the
+  # frontend's Connector Dashboard.
+  #
+  # This repository MUST be unique between installations of Alation. Failure to do
+  # so may result in undefined behavior.
+  repository: ~
+
+# Credentials that are used to make API calls to the configured AWS ECR.
+# Each instance of Alation MUST have a dedicated repository for managing
+# connector images installed through that particular instance. Reusing
+# repositories may lead to undefined behavior and should be avoided.
+#
+# New credentials SHOULD be created with access controls configured for
+# exactly only the configured dedicated repository. Doing so drastically
+# reduces the risk of systemic damage due to a leaked credential and makes
+# revocation and reissuance far simpler.
+#
+# If the registry.implementation is set to ECR, then these fields MUST be
+# populated. Failure to do so will result in an immediate exit of the
+# AIM with an error message asking you to fill these in.
+aws:
+  region: ~
+  aws_access_key_id: ~
+  aws_secret_access_key: ~
+  aws_username: ~
+
+# For more information on how to configure logging using this string
+# please see https://docs.rs/env_logger/0.9.0/env_logger/#enabling-logging
+#
+# The default that we have here is setting Alation's components to debug
+# while having all others (the HTTP framework, K8s library, etc.) set to info.
+logging: '"info,acm=debug,aim=debug"'
+
+# These are configurations for local development that enable things such as
+# exposing our ACM/AIM via NodePort and building an environment conducive
+# for heap and memory profiling.
+#
+# These SHOULD NOT be altered for production deployments. The memory profiling
+# especially simply will not work as it requires a custom build of the environment.
+development:
+  # When pull_services_from_local is false, then the AIM and the ACM are pulled
+  # from the same registry that is configured under the "registry" section above.
+  # False is the expected production behavior.
+  #
+  # However, if it is set to true, then our system images will be pulled from
+  # the hardcoded "registry.kube-system".
+  #
+  # This is useful if you wish to test your deployment locally but still want
+  # to use a real ECR backed registry for OCF connector images. You might want
+  # to do this for, say, integration testing.
+  pull_services_from_local: false
+  # Sets the ACM and the AIM to be available over NodePort services rather
+  # than the default ClusterIP. This is useful for reaching these services from outside
+  # of the cluster for activities such as local smoke checks and integration tests.
+  externally_available: false
+  profiling:
+    # Heap profiling.
+    #
+    # Enables a deployment wired up with heaptrack for memory profiling. Currently, only the ACM
+    # Is completely wired up to enable this (as the AIM is required to use an AWS Linux image base
+    # for which I have not been able to get a working installation of heaptrack just yet).
+    #
+    # For more information regarding heaptrack, please see https://github.com/KDE/heaptrack.
+    memory: false

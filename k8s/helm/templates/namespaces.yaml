@@ -1,0 +1,16 @@
+# The namespace contains all ephemeral connector pods.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ocf
+  labels:
+    name: ocf
+---
+# The namespace that contains all of our long-lived,
+# Alation written, components that manage connector pods.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ocf-system
+  labels:
+    name: ocf-system

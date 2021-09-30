@@ -1,0 +1,164 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - "*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    name: Compile
+    steps:
+      - uses: actions/checkout@v2
+      - name: Load Cache
+        uses: Swatinem/rust-cache@v1
+        with:
+          working-directory: ./k8s
+      - uses: actions-rs/cargo@v1
+        name: Compile
+        with:
+          command: build
+          args: --release --workspace --manifest-path ./k8s/Cargo.toml
+      - name: Archive the ACM
+        uses: actions/upload-artifact@v2
+        with:
+          name: acm
+          path: k8s/target/release/acm
+      - name: Archive the AIM
+        uses: actions/upload-artifact@v2
+        with:
+          name: aim
+          path: k8s/target/release/aim
+
+  docker:
+    needs: compile
+    runs-on: ubuntu-latest
+    name: Build Images
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prep Workspace
+        run: mkdir -p k8s/target/release
+      - name: Download the Archived ACM
+        uses: actions/download-artifact@v2
+        with:
+          name: acm
+          path: k8s/target/release
+      - name: Download the Archived AIM
+        uses: actions/download-artifact@v2
+        with:
+          name: aim
+          path: k8s/target/release
+      - name: Package
+        working-directory: k8s
+        run: ./package.sh
+        env:
+          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
+      - name: Archive the ACM
+        uses: actions/upload-artifact@v2
+        with:
+          name: acm
+          path: k8s/target/images/acm/acm
+      - name: Archive the AIM
+        uses: actions/upload-artifact@v2
+        with:
+          name: aim
+          path: k8s/target/images/aim/aim
+      - name: Archive containerd
+        uses: actions/upload-artifact@v2
+        with:
+          name: containerd
+          path: k8s/target/images/containerd/containerd
+
+  helm:
+    runs-on: ubuntu-latest
+    name: Package Helm Charts
+    steps:
+      - uses: actions/checkout@v2
+      - name: Package Helm Charts
+        working-directory: ./k8s
+        run: |
+          source version.env
+          helm package --version "${VERSION}" --app-version "${VERSION}" ./helm
+          mv acm-"${VERSION}".tgz acm.tgz
+      - name: Archive Helm Charts
+        uses: actions/upload-artifact@v2
+        with:
+          name: acm_helm_charts
+          path: k8s/acm.tgz
+
+  release:
+    needs: [docker, helm]
+    name: Release to ECR
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION  }}
+      - name: Log Into ECR
+        run: |
+          PASSWORD="$(aws ecr get-login-password --region us-east-2)"
+          echo "${PASSWORD}" | docker login --username AWS --password-stdin "${REGISTRY}"
+          echo "${PASSWORD}" | HELM_EXPERIMENTAL_OCI=1 helm registry login --username AWS --password-stdin "${REGISTRY}"
+        env:
+          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
+      - name: Download the Archived ACM
+        uses: actions/download-artifact@v2
+        with:
+          name: acm
+      - name: Download the Archived AIM
+        uses: actions/download-artifact@v2
+        with:
+          name: aim
+      - name: Download the Archived containerd
+        uses: actions/download-artifact@v2
+        with:
+          name: containerd
+      - name: Load Images
+        run: |
+          docker load -i acm
+          docker load -i aim
+          docker load -i containerd
+      - name: Push ACM to ECR
+        working-directory: ./k8s
+        env:
+          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
+        run: |
+          source version.env
+          docker push "${REGISTRY}"/ocf-system/acm:"${VERSION}"
+      - name: Push AIM to ECR
+        working-directory: ./k8s
+        env:
+          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
+        run: |
+          source version.env
+          docker push "${REGISTRY}"/ocf-system/aim:"${VERSION}"
+      - name: Push containerd to ECR
+        working-directory: ./k8s
+        env:
+          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
+        run: |
+          source version.env
+          docker push "${REGISTRY}"/ocf-system/containerd:"${VERSION}"
+      - name: Download the Archived Helm Charts
+        uses: actions/download-artifact@v2
+        with:
+          name: acm_helm_charts
+      - name: Push Helm Charts to ECR
+        env:
+          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
+        run: |
+          source k8s/version.env
+          HELM_EXPERIMENTAL_OCI=1 helm push acm.tgz oci://"${REGISTRY}"/helm
+          docker push "${REGISTRY}"/ocf-system/containerd:"${VERSION}"
