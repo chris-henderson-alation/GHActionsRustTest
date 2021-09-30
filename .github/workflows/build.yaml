@@ -81,10 +81,10 @@ jobs:
     name: Package Helm Charts
     steps:
       - name: Wat
-        working-directory: k8s
+        working-directory: ./k8s
         run: ls
       - name: Helm Package
-        working-directory: k8s
+        working-directory: ./k8s
         run: |
           source version.env
           helm package --version "${VERSION}" --app-version "${VERSION}" ./helm
