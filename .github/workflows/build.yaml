@@ -83,6 +83,7 @@ jobs:
       - name: Helm Package
         working-directory: k8s
         run: |
+          ls
           source version.env
           helm package --version "${VERSION}" --app-version "${VERSION}" ./helm
 
