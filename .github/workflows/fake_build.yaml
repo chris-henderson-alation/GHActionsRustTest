@@ -56,7 +56,7 @@ jobs:
           path: k8s/target/release/aim
       - name: Package
         working-directory: k8s
-        run: k8s/package.sh
+        run: ./package.sh
         env:
           REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
       - name: Archive the ACM

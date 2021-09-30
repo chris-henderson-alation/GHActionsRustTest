@@ -12,8 +12,8 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  lints:
-    name: Code Quality and Formatting Linters
+  clippy:
+    name: Code Quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -27,14 +27,25 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-          components: rustfmt, clippy
-#      - name: Run "cargo fmt --all -- --check"
-#        uses: actions-rs/cargo@v1
-#        with:
-#          command: fmt
-#          args: --all -- --check
+          components:  clippy
       - name: Run "cargo clippy -- -D warnings"
         uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: --manifest-path ./k8s/Cargo.toml -- -D warnings
+
+  fmt:
+    name: Source Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+      - name: Run "cargo fmt --all -- --check"
+        working-directory: k8s
+        run: cargo fmt --all -- --check
