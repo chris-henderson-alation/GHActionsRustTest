@@ -97,7 +97,7 @@ jobs:
     needs: [docker, helm]
     name: Release to ECR
     runs-on: ubuntu-latest
-#    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
       - name: Configure AWS Credentials
@@ -151,7 +151,6 @@ jobs:
         run: |
           source version.env
           docker push "${REGISTRY}"/ocf-system/containerd:"${VERSION}"
-
       - name: Download the Archived Helm Charts
         uses: actions/download-artifact@v2
         with:
