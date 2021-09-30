@@ -22,18 +22,58 @@ jobs:
         with:
           working-directory: ./k8s
       - uses: actions-rs/cargo@v1
-        name: Build
+        name: Compile
         with:
           command: build
           args: --release --workspace --manifest-path ./k8s/Cargo.toml
+      - name: Archive the ACM
+        uses: actions/upload-artifact@v2
+        with:
+          name: acm
+          path: k8s/target/release/acm
+      - name: Archive the AIM
+        uses: actions/upload-artifact@v2
+        with:
+          name: aim
+          path: k8s/target/release/aim
 
   docker:
     needs: compile
     runs-on: ubuntu-latest
-    name: Docker Build
+    name: Build Images
     steps:
-      - name: docker ls
-        run: docker images
+      - name: Prep Workspace
+        run: mkdir -p k8s/target/release
+      - name: Download the Archived ACM
+        uses: actions/download-artifact@v2
+        with:
+          name: acm
+          path: k8s/target/release/acm
+      - name: Download the Archived ACM
+        uses: actions/download-artifact@v2
+        with:
+          name: aim
+          path: k8s/target/release/aim
+      - name: Package
+        working-directory: k8s
+        run: package.sh
+        env:
+          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
+      - name: Archive the ACM
+        uses: actions/upload-artifact@v2
+        with:
+          name: acm
+          path: k8s/target/images/acm/acm
+      - name: Archive the AIM
+        uses: actions/upload-artifact@v2
+        with:
+          name: aim
+          path: k8s/target/images/aim/aim
+      - name: Archive containerd
+        uses: actions/upload-artifact@v2
+        with:
+          name: containerd
+          path: k8s/target/images/containerd/containerd
 
   helm:
     runs-on: ubuntu-latest
