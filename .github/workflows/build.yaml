@@ -97,10 +97,19 @@ jobs:
     needs: [docker, helm]
     name: Release to ECR
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+#    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
-
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION  }}
+      - name: Log Into ECR
+        run: aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin "${REGISTRY}"
+        env:
+          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
       - name: Download the Archived ACM
         uses: actions/download-artifact@v2
         with:
@@ -112,14 +121,21 @@ jobs:
       - name: Download the Archived containerd
         uses: actions/download-artifact@v2
         with:
-          name: aim
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION  }}
-      - name: Log Into ECR
-        run: aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin "${REGISTRY}"
-        env:
-          REGISTRY: 248135293344.dkr.ecr.us-east-2.amazonaws.com
+          name: containerd
+      - name: Load Images
+        run: |
+          docker load -i acm
+          docker load -i aim
+          docker load -i containerd
+      - name: Push ACM to ECR
+        run: |
+          source version.env
+          docker push "${REGISTRY}"/ocf-system/acm:"${VERSION}"
+      - name: Push AIM to ECR
+        run: |
+          source version.env
+          docker push "${REGISTRY}"/ocf-system/aim:"${VERSION}"
+      - name: Push containerd to ECR
+        run: |
+          source version.env
+          docker push "${REGISTRY}"/ocf-system/containerd:"${VERSION}"
