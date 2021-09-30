@@ -42,6 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build Images
     steps:
+      - uses: actions/checkout@v2
       - name: Prep Workspace
         run: mkdir -p k8s/target/release
       - name: Download the Archived ACM
