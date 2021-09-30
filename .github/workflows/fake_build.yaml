@@ -78,7 +78,7 @@ jobs:
 
   helm:
     runs-on: ubuntu-latest
-    name: Helm Package
+    name: Package Helm Charts
     steps:
       - name: Helm Package
         run: helm
