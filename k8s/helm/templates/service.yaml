@@ -1,0 +1,36 @@
+# The ACM's service definition.
+apiVersion: v1
+kind: Service
+metadata:
+  name: acm
+  namespace: ocf-system
+  labels:
+    app: acm
+spec:
+  selector:
+    app: acm
+  ports:
+    - port: 80
+      targetPort: 8000
+  {{ if .Values.development.externally_available }}
+  type: NodePort
+  {{ end }}
+
+---
+# The AIM's service definition.
+apiVersion: v1
+kind: Service
+metadata:
+  name: aim
+  namespace: ocf-system
+  labels:
+    app: aim
+spec:
+  selector:
+    app: aim
+  ports:
+    - port: 80
+      targetPort: 8000
+  {{ if .Values.development.externally_available }}
+  type: NodePort
+  {{ end }}

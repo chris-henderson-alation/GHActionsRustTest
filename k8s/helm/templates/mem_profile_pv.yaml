@@ -1,0 +1,30 @@
+## Memory profiling deployment ONLY
+{{ if .Values.development.profiling.memory }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: heaptrack
+  namespace: ocf-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /tmp/heaptrack/
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: heaptrack
+  namespace: ocf-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+{{ end }}
+

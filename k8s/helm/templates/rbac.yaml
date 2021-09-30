@@ -1,0 +1,70 @@
+# The service account that is used for general OCF system management.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ocf-system
+  namespace: ocf-system
+automountServiceAccountToken: true
+
+---
+
+# This ClusterRole gives the ACM the power to dynamically control
+# pods (connectors) in the `ocf` namespace only.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ocf-system
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["create", "get", "list", "watch", "patch", "delete"]
+
+---
+
+# This ClusterRole gives the ACM the power to inspect (that is, read-only) other
+# pods within the `ocf-system` namespace. This sort of reflection is useful
+# for activities such as attaching one's own metadata to a connector's pod or
+# observing other ACMs in order to attempt to adopt orphaned connector pods.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ocf-system-meta-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+
+---
+
+# Binds the ClusterRole for managing connector pods to the `ocf-system` service account.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ocf-system
+  namespace: ocf
+subjects:
+  - kind: ServiceAccount
+    name: ocf-system
+    namespace: ocf-system
+roleRef:
+  kind: ClusterRole
+  name: ocf-system
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+# Binds the ClusterRole for inspecting other ACM pods to the `ocf-system` service account.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ocf-system
+  namespace: ocf-system
+subjects:
+  - kind: ServiceAccount
+    name: ocf-system
+    namespace: ocf-system
+roleRef:
+  kind: ClusterRole
+  name: ocf-system-meta-role
+  apiGroup: rbac.authorization.k8s.io
+

@@ -1,0 +1,116 @@
+# The ACM's deployment definition.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acm
+  namespace: ocf-system
+spec:
+  selector:
+    matchLabels:
+      app: acm
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: acm
+    spec:
+      serviceAccountName: ocf-system
+      automountServiceAccountToken: true
+      # Enables the heap profiling deployment.
+      {{ if .Values.development.profiling.memory }}
+      volumes:
+        - name: heaptrack
+          persistentVolumeClaim:
+            claimName: heaptrack
+      {{ end }}
+      containers:
+        - name: acm
+          {{ if .Values.development.pull_services_from_local }}
+          image: registry.kube-system/ocf-system/acm:{{ .Chart.AppVersion }}
+          {{ else }}
+          image: {{ .Values.registry.registry }}/ocf-system/acm:{{ .Chart.AppVersion }}
+          {{ end }}
+          env: [
+            {name: "REGISTRY", value: {{ .Values.registry.registry }}},
+            {name: "REPOSITORY", value: {{ .Values.registry.repository }}},
+            {name: "RUST_LOG", value: {{ .Values.logging }}}
+          ]
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          # If heap profiling is enabled, then this is the directory where
+          # the report ultimately gets written (from within the pod).
+          {{ if .Values.development.profiling.memory }}
+          volumeMounts:
+            - mountPath: /data
+              name: heaptrack
+          {{ end }}
+
+---
+
+# The AIM's deployment definition.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aim
+  namespace: ocf-system
+spec:
+  selector:
+    matchLabels:
+      app: aim
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: aim
+    spec:
+      volumes:
+        - name: containerd-socket
+          emptyDir: {}
+        # Enables the heap profiling deployment.
+        {{ if .Values.development.profiling.memory }}
+        - name: heaptrack
+          persistentVolumeClaim:
+            claimName: heaptrack
+        {{ end }}
+      containers:
+        - name: aim
+          {{ if .Values.development.pull_services_from_local }}
+          image: registry.kube-system/ocf-system/aim:{{ .Chart.AppVersion }}
+          {{ else }}
+          image: {{ .Values.registry.registry }}/ocf-system/aim:{{ .Chart.AppVersion }}
+          {{ end }}
+          env: [
+            {name: "RUST_LOG", value: {{ .Values.logging }}},
+            {name: "REGISTRY", value: {{ .Values.registry.registry }}},
+            {name: "REPOSITORY", value: {{ .Values.registry.repository }}},
+            {name: "IMPLEMENTATION", value: {{ .Values.registry.implementation }}},
+
+            {{ if eq .Values.registry.implementation "ECR" }}
+            {name: "AWS_REGION", valueFrom: { secretKeyRef: { name: "ocf-aws", key: "AWS_REGION" } }},
+            {name: "AWS_ACCESS_KEY_ID", valueFrom: { secretKeyRef: { name: "ocf-aws", key: "AWS_ACCESS_KEY_ID" } }},
+            {name: "AWS_SECRET_ACCESS_KEY", valueFrom: { secretKeyRef: { name: "ocf-aws", key: "AWS_SECRET_ACCESS_KEY" } }},
+            {name: "AWS_USERNAME", valueFrom: { secretKeyRef: { name: "ocf-aws", key: "AWS_USERNAME" } }}
+            {{ end }}
+          ]
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - name: containerd-socket
+              mountPath: /run/containerd/
+            # If heap profiling is enabled, then this is the directory where
+            # the report ultimately gets written (from within the pod).
+            {{ if .Values.development.profiling.memory }}
+            - name: heaptrack
+              mountPath: /data
+            {{ end }}
+        - name: containerd
+          {{ if .Values.development.pull_services_from_local }}
+          image: registry.kube-system/ocf-system/containerd:{{ .Chart.AppVersion }}
+          {{ else }}
+          image: {{ .Values.registry.registry }}/ocf-system/containerd:{{ .Chart.AppVersion }}
+          {{ end }}
+          volumeMounts:
+              - name: containerd-socket
+                mountPath: /run/containerd/
