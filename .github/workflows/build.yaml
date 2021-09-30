@@ -86,7 +86,7 @@ jobs:
         run: |
           source version.env
           helm package --version "${VERSION}" --app-version "${VERSION}" ./helm
-          mv acm-"${VERSION}.tgz acm.tgz
+          mv acm-"${VERSION}".tgz acm.tgz
       - name: Archive Helm Charts
         uses: actions/upload-artifact@v2
         with:
